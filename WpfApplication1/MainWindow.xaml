@@ -5,21 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApplication1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525" Loaded="Window_Loaded">
+        Title="Прогноз погоды" Height="350" Width="525" Loaded="Window_Loaded">
     <Grid>
         <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="150,10,0,0" VerticalAlignment="Top" Width="164" SelectionChanged="comboBox_SelectionChanged"/>
-        <Label x:Name="label" Content="Выбрите город:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="32" Width="97"/>
-        <Button x:Name="button" Content="Добавить город" HorizontalAlignment="Left" Margin="334,10,0,0" VerticalAlignment="Top" Width="103" RenderTransformOrigin="0.5,0.5" Click="button_Click">
-            <Button.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform Angle="-0.581"/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </Button.RenderTransform>
-        </Button>
+        <Label x:Name="label" Content="Выбрите город:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="31" Width="97"/>
         <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top" Height="248" Width="497"/>
+        <Button x:Name="button_Add_City" Content="Добавить город" HorizontalAlignment="Left" Margin="329,12,0,0" VerticalAlignment="Top" Width="113" Click="button_Add_City_Click"/>
+        <Button x:Name="button_Save_Citys" Content="Сохранить города" HorizontalAlignment="Left" Margin="394,36,0,0" VerticalAlignment="Top" Width="113" Click="button_Save_Citys_Click"/>
+        <Button x:Name="button_Load_Citys" Content="Загрузить города" HorizontalAlignment="Left" Margin="276,36,0,0" VerticalAlignment="Top" Width="113" Click="button_Load_Citys_Click"/>
 
     </Grid>
 </Window>

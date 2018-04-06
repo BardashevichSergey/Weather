@@ -16,9 +16,14 @@ namespace WpfApplication1
         public string WeatherType { get; set; }
 
     }
-    public class Weather2
+    public class WeatherTable
     {
         public string Property { get; set; }
-        public string value { get; set; }
+        public string Value { get; set; }
+        public WeatherTable(string property,string value)
+        {
+            Property = property;
+            Value = value;
+        }
     }
 }

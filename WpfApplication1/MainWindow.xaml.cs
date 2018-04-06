@@ -15,7 +15,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Forms;
-
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 
 namespace WpfApplication1
 {
@@ -23,6 +24,7 @@ namespace WpfApplication1
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     /// 
+
     public partial class MainWindow : Window
     {
         List<City> CityList;
@@ -35,25 +37,12 @@ namespace WpfApplication1
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             CityList = new List<City>();
-            CityList.Add(new City("Брянск", 191));
-            CityList.Add(new City("Ульяновск", 195));
+            CityList.Add(new City("Брянск"));
+            CityList.Add(new City("Москва"));
             for (int i = 0; i < CityList.Count; i++)
                 comboBox.Items.Add(CityList[i].Name);
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            /*AddCity addCity = new AddCity();
-            if(addCity.ShowDialog() == true )
-            {
-                if (addCity.CityName != "")
-                {
-                    CityList.Add(addCity.CityName);
-                    comboBox.Items.Add(CityList.Last());
-                }
-            }*/
-
-        }
         public static string GetHtmlPageText(string url)
         {
             string text = "";
@@ -69,91 +58,78 @@ namespace WpfApplication1
             }
             return text;
         }
-        public static List<Weather2> DownLoad(int region)
+        private void SaveCityList(List<City> List)
+        {
+            DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(List<City>));
+
+            using (FileStream fs = new FileStream("people.json", FileMode.OpenOrCreate))
+            {
+               jsonFormatter.WriteObject(fs, List);
+            }
+        }
+
+        public static List<WeatherTable> ParsePage(string CityName)
         {
             
             HtmlAgilityPack.HtmlDocument html = new HtmlAgilityPack.HtmlDocument();
-            html.LoadHtml(GetHtmlPageText("https://export.yandex.ru/bar/reginfo.xml?region="+region.ToString()));
+            html.LoadHtml(GetHtmlPageText("https://www.meteoservice.ru/weather/now/"+ CityName + ".html"));
 
             Weather weather = new Weather();
 
-            List<Weather2> weatherlist = new List<Weather2>();
-            var Now = html.DocumentNode.SelectSingleNode("//day");
-            var NowWeather = html.DocumentNode.SelectSingleNode("//day_part[1]");
-            foreach (var i in Now.ChildNodes)
+            List<WeatherTable> weatherlist = new List<WeatherTable>();
+            var Now = html.DocumentNode.SelectSingleNode("//*[contains(@class,'temperature')]");
+            weatherlist.Add(new WeatherTable("Температура воздуха", Now.InnerText));
+            for (int i = 2; i < 11; i++)
             {
-                if (i.Name.Equals("title"))
-                {
-                    Weather2 weather2 = new Weather2();
-                    weather.City = i.InnerText;
-                    weather2.Property = "Город";
-                    weather2.value = i.InnerText;
-                    weatherlist.Add(weather2);
-                }
-                    
-                if (i.Name.Equals("sun_rise"))
-                {
-                    Weather2 weather2 = new Weather2();
-                    weather.Sun_rise = i.InnerText;
-                    weather2.Property = "Рассвет";
-                    weather2.value = i.InnerText;
-                    weatherlist.Add(weather2);
-                }
-                if (i.Name.Equals("sunset"))
-                {
-                    Weather2 weather2 = new Weather2();
-                    weather.Sunset = i.InnerText;
-                    weather2.Property = "Закат";
-                    weather2.value = i.InnerText;
-                    weatherlist.Add(weather2);
-                }
-                if (i.Name.Equals("weekday"))
-                    {
-                    Weather2 weather2 = new Weather2();
-                    weather.Weekday = i.InnerText;
-                        weather2.Property = "День недели";
-                        weather2.value = i.InnerText;
-                    weatherlist.Add(weather2);
-                }
-            }
-            foreach (var i in NowWeather.ChildNodes)
-            {
-                if (i.Name.Equals("weather_type"))
-                {
-                    Weather2 weather2 = new Weather2();
-                    weather.WeatherType = i.InnerText;
-                    weather2.Property = "Тип погоды";
-                    weather2.value = i.InnerText;
-                    weatherlist.Add(weather2);
-                }
-                if (i.Name.Equals("temperature"))
-                {
-                    Weather2 weather2 = new Weather2();
-                    weather.TemperatureNow = Convert.ToInt32(i.InnerText);
-                    weather2.Property = "Температура";
-                    weather2.value = i.InnerText;
-                    weatherlist.Add(weather2);
-                }
-            }
-                return weatherlist;
-        }
-
-        private void Get_Weather_Click(object sender, RoutedEventArgs e)
-        {
-            List<Weather2> weather = new List<Weather2>();
-            City c= CityList.ElementAt(comboBox.SelectedIndex);
-            weather = DownLoad(c.RegionNum);
-            dataGrid.ItemsSource = weather;
+                var NowWeather = html.DocumentNode.SelectSingleNode("//table/tr["+i+"]");
+                weatherlist.Add(new WeatherTable(NowWeather.ChildNodes[1].InnerText, NowWeather.ChildNodes[3].InnerText));
+            }    
+            return weatherlist;
         }
 
         private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            List<Weather2> weather = new List<Weather2>();
+            List<WeatherTable> weather = new List<WeatherTable>();
             City c = CityList.ElementAt(comboBox.SelectedIndex);
-            weather = DownLoad(c.RegionNum);
+            weather = ParsePage(c.NameTranslit);
             dataGrid.ItemsSource = weather;
             dataGrid.Columns[0].Header = "Свойство";
             dataGrid.Columns[1].Header = "Значение";
+        }
+
+        private void button_Add_City_Click(object sender, RoutedEventArgs e)
+        {
+            AddCity addCity = new AddCity();
+            if (addCity.ShowDialog() == true)
+            {
+                if (addCity.CityName != "")
+                {
+                    CityList.Add(new City(addCity.CityName));
+                    comboBox.Items.Add(CityList.Last().Name);
+                }
+            }
+        }
+
+        private void button_Save_Citys_Click(object sender, RoutedEventArgs e)
+        {
+            SaveCityList(CityList);
+        }
+        private void button_Load_Citys_Click(object sender, RoutedEventArgs e)
+        {
+            using (FileStream fs = new FileStream("people.json", FileMode.OpenOrCreate))
+            {
+                DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(List<City>));
+
+                List<City> newpeople = (List<City>)jsonFormatter.ReadObject(fs);
+                CityList.Clear();
+                comboBox.Items.Clear();
+                foreach (var i in newpeople)
+                {
+                    CityList.Add(i);
+                    comboBox.Items.Add(CityList.Last().Name);
+                }
+            }
+            SaveCityList(CityList);
         }
     }
 }
