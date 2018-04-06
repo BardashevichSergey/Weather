@@ -9,8 +9,6 @@
     <Grid>
         <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="150,10,0,0" VerticalAlignment="Top" Width="164" SelectionChanged="comboBox_SelectionChanged"/>
         <Label x:Name="label" Content="Выбрите город:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="32" Width="97"/>
-        <Label x:Name="label1" Content="Вы выбрали :" HorizontalAlignment="Left" Margin="10,69,0,0" VerticalAlignment="Top" Width="97"/>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="150,69,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="164"/>
         <Button x:Name="button" Content="Добавить город" HorizontalAlignment="Left" Margin="334,10,0,0" VerticalAlignment="Top" Width="103" RenderTransformOrigin="0.5,0.5" Click="button_Click">
             <Button.RenderTransform>
                 <TransformGroup>
@@ -21,8 +19,7 @@
                 </TransformGroup>
             </Button.RenderTransform>
         </Button>
-        <Button x:Name="Get_Weather" Content="Узнать погоду" HorizontalAlignment="Left" Margin="346,68,0,0" VerticalAlignment="Top" Width="96" Click="Get_Weather_Click"/>
-        <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Margin="10,100,0,0" VerticalAlignment="Top" Height="209" Width="497"/>
+        <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" Margin="10,61,0,0" VerticalAlignment="Top" Height="248" Width="497"/>
 
     </Grid>
 </Window>
