@@ -22,13 +22,27 @@ namespace WpfApplication1
         public string Property { get; set; }
         public string Value { get; set; }
         public string T { get; set; }
-        public WeatherTable(string property, string value, string[] propertyarray =null)
+        public WeatherTable(string property, string value)
         {
             PropertyArray = new string[2];
             PropertyArray[0] = property;
             Property = property;
             Value = value;
             //T = propertyarray[0];
+        }
+    }
+
+    public class WeatherRow
+    {
+        public string property { get; set; }
+        public string value { get; set; }
+        public string weather { get; set; }
+
+        public WeatherRow (string property,string value,string weather = "")
+        {
+            this.property = property;
+            this.value = value;
+            this.weather = weather;
         }
     }
 }

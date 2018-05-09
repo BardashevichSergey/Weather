@@ -30,24 +30,24 @@
         <TabControl x:Name="tabControl" Margin="176,24,5,54" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Сейчас" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" Width="54" Margin="0">
                 <Grid Background="#FFE5E5E5">
-                    <DataGrid x:Name="dataGrid_Now" HorizontalAlignment="Left" VerticalAlignment="Top" Height="242" Width="486" ItemsSource="{Binding WeatherTable}">
+                    <DataGrid x:Name="dataGrid_Now" HorizontalAlignment="Left" VerticalAlignment="Top" ItemsSource="{Binding WeatherRow}" Height="242" Width="486" AutoGenerateColumns="False">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Погода" 
-                                Binding="{Binding Property}"/>
-                            </DataGrid.Columns>
+                            <DataGridTextColumn Header="Погода" Binding="{Binding property}"/>
+                        </DataGrid.Columns>
+
                     </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem Header="10 дней" HorizontalAlignment="Left" Height="20" Margin="2,0,-2,0" VerticalAlignment="Top" Width="54">
+            <TabItem Header="10 дней" HorizontalAlignment="Left" Height="20" Margin="0" VerticalAlignment="Top" Width="54">
                 <Grid Background="#FFE5E5E5">
-                    <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Height="242" Width="486" ItemsSource="{Binding WeatherTable }">
+                    <DataGrid x:Name="dataGrid" HorizontalAlignment="Left" VerticalAlignment="Top" Height="242" Width="486" ItemsSource="{Binding WeatherRow }" AutoGenerateColumns="False">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Время" Width="175" 
-                             Binding="{Binding Path=ModelName}"></DataGridTextColumn>
+                            <DataGridTextColumn Header="Время"
+                             Binding="{Binding Path=property}"></DataGridTextColumn>
                             <DataGridTextColumn Header="Погода" 
-                             Binding="{Binding Path=Proparray[0]}"></DataGridTextColumn>
+                             Binding="{Binding Path=weather}"></DataGridTextColumn>
                             <DataGridTextColumn Header="Температура" 
-                             Binding="{Binding Path=Proparray[1]}"></DataGridTextColumn>
+                             Binding="{Binding Path=value}"></DataGridTextColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

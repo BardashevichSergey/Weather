@@ -34,7 +34,8 @@ namespace WpfApplication1
     {
         List<City> CityList;
         List<string> weatherTable;
-        string[] TabControlItems = { "Сегодня", "Неделя", "2 недели" };
+        List<WeatherRow> weatherRows;
+
         bool isInit = false;
         enum selection
         {
@@ -49,15 +50,7 @@ namespace WpfApplication1
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            weatherTable = new List<string>();
-            weatherTable.Add("asdsa");
-            weatherTable.Add("asdsa1");
-            weatherTable.Add("asdsa2");
-            dataGrid.ItemsSource = weatherTable;
-            DataGridTextColumn col = new DataGridTextColumn();
-            col.Header = "asda";
-            dataGrid.Columns.Add(col);
-
+                       
             List<City> CityListTmp = new List<City>();
             CityList = new List<City>();
             CityListTmp.Add(new City("Брянск"));
@@ -69,15 +62,7 @@ namespace WpfApplication1
                 CityList.Add(item);
             CityListTmp.Clear();
             listBox.ItemsSource = CityList;
-            foreach (var i in TabControlItems)
-            {
-                TabItem tab = new TabItem();
-                tab.Header = i;
-                tab.Content = new System.Windows.Controls.DataGrid();
-                tabControl.Items.Add(tab);
-            }
-
-            //getCitylistFromHTML();
+            
             isInit = true;
         }
         private List<City> getCitylistFromHTML()
@@ -171,78 +156,72 @@ namespace WpfApplication1
             
         }
 
-        private static List<WeatherTable> ParsePage(string CityName, selection select)
+        private  List<WeatherRow> ParsePage(string CityName, selection select)
         {
             
             HtmlAgilityPack.HtmlDocument html = new HtmlAgilityPack.HtmlDocument();
             string page = GetHtmlPageText("https://www.meteoservice.ru/weather/"+select+"/" + CityName + ".html");
-            if (page != null)
-            {
+            if (page == null)
+                return null;
+            else
+            { 
                 html.LoadHtml(page);
                 Weather weather = new Weather();
-                List<WeatherTable> weatherlist = new List<WeatherTable>();
+                List<WeatherRow> weatherlist = new List<WeatherRow>();
 
                 switch (select)
                 {
                     case selection.now:
                         {
-                            //var Now = html.DocumentNode.SelectSingleNode("//*[contains(@class,'temperature')]");
                             HtmlNodeCollection Now = html.DocumentNode.SelectNodes("//*[contains(@class,'callout')]/div/div");
-                            
-                            //weatherlist.Add(new WeatherTable("Температура воздуха", Now.InnerText));
                             for (int i = 0; i < Now.Count; i++)
                             {
-                                //var NowWeather = html.DocumentNode.SelectSingleNode("//table/tr[" + i + "]");
-                                //HtmlNodeCollection now2 = Now[i].SelectNodes("//div");
-
                                 string str = (Now[i].InnerText.Replace("\t", "")).Replace("\n", "");
-                                weatherlist.Add(new WeatherTable(str, str));
-                                
+                                weatherlist.Add(new WeatherRow(str,  str ));
                             }
-                            return weatherlist;
                             break;
                         }
                     case selection.today:
                         {
-                            return weatherlist;
-
                             break;
                         }
                     case selection.week:
                         {
-                            HtmlAgilityPack.HtmlNodeCollection Now = (html.DocumentNode.SelectSingleNode("//*[contains(@class,'row')]")).SelectNodes("//div/h3");
-                            var Week = (html.DocumentNode.SelectSingleNode("//*[contains(@class,'row')]")).SelectNodes("//*[contains(@class,'data three_hour')]");
+                            HtmlAgilityPack.HtmlNodeCollection Week = (html.DocumentNode.SelectNodes("//*[contains(@class,'row')]/div/table"));//.SelectNodes("//div/h3");
+                            HtmlAgilityPack.HtmlNodeCollection DayName = (html.DocumentNode.SelectNodes("//*[contains(@class,'row collapse align-middle')]/div"));//.SelectNodes("//div/h3");
+                            HtmlAgilityPack.HtmlNodeCollection days = html.DocumentNode.SelectNodes("//*[contains(@class,'row')]/div/*[contains(@class,'row collapse align-middle')]//*[contains(@class,'text-nowrap')]");
+;
                             for (int j = 0; j < Week.Count; j++)
                             {
-                                weatherlist.Add(new WeatherTable(Now[j].InnerText, ""));
-                                var DayTime = Week[j].SelectSingleNode("//table[" + (j + 1) + "]/tbody/tr[1]");
-                                var DayTemp = Week[j].SelectSingleNode("//table[" + (j + 1) + "]/tbody/tr[3]");
+                                weatherlist.Add(new WeatherRow(days[j].InnerText, ""));
+                                HtmlAgilityPack.HtmlNodeCollection DayTime = Week[j].SelectNodes("//table[" + (j + 1) + "]/tbody/*[contains(@class,'time')]/td");
+                                HtmlAgilityPack.HtmlNodeCollection DayTemp = Week[j].SelectNodes("//table[" + (j + 1) + "]/tbody/*[contains(@class,'temperature')]/td");
+                                HtmlAgilityPack.HtmlNodeCollection DayWeather = Week[j].SelectNodes("//table[" + (j + 1) + "]/tbody/*[contains(@class,'weather')]/td");
                                 if (DayTime != null & DayTemp != null)
-                                    for (int k = 0; k < DayTime.ChildNodes.Count; k++)
+                                    for (int k = 2; k < DayTime.Count; k++)
                                     {
-                                        var Time = DayTime.SelectSingleNode("//table[" + (j + 1) + "]/tbody/tr[1]/td[" + (k + 1) + "]");
-                                        var Temp = DayTemp.SelectSingleNode("//table[" + (j + 1) + "]/tbody/tr[3]/td[" + (k + 1) + "]/div");
-                                        if (Time != null & Temp != null)
-                                            weatherlist.Add(new WeatherTable(Time.InnerText.Substring(0, 5), Temp.InnerText.Substring(0, Temp.InnerText.Length - 5), new string[] { "ds","sdew"}));
+                                        var Time = DayTime[k].FirstChild.InnerText;
+                                        var Temp = DayTemp[k].InnerText.Replace("\t","").Replace("\n","").Replace("&deg","").Replace("  ", "");
+                                        var Weather = DayWeather[k].InnerText.Replace("\t", "").Replace("\n", "").Replace("&deg", "").Replace("  ", "");
+
+                                        if (Time != null & Temp != null) ;
+                                            weatherlist.Add(new WeatherRow( Time, Temp,Weather));
                                     }
                             }
-                            return weatherlist;
                             break;
                         }
                     default:
-                        return weatherlist;
                         break;
                 }
+                return weatherlist;
             }
-            else
-                return null;
         }
 
         private void getWeather(int index=0)
         {
             if (index < 0)
                 index = 0;
-            List<WeatherTable> weather = new List<WeatherTable>();
+            List<WeatherRow> weather = new List<WeatherRow>();
             selection select = selection.now;
             if(CityList!=null)
                 if (CityList.Count > 0)
@@ -256,20 +235,19 @@ namespace WpfApplication1
                             break;
                     }
                     weather = ParsePage(c.NameTranslit, select);
-                    /*foreach(var i in weather)
-                    {
-                        weatherTable.Add(i.Property);
-                    }*/
-                    System.Windows.Controls.DataGrid dg = ((tabControl.Items[tabControl.SelectedIndex] as TabItem).Content as System.Windows.Controls.DataGrid);
+                   
                     if (weather != null)
                     {
                         dataGrid_Now.ItemsSource = weather;
-                        //dg.ItemsSource = weather;
+                        dataGrid.ItemsSource = weather;
+
                         CurentCity.Content = c.Name;
                     }
                     else
                     {
-                        //dg.ItemsSource = null;
+                        dataGrid_Now.ItemsSource = null;
+                        dataGrid.ItemsSource = null;
+
                         CurentCity.Content = c.Name;
                     }
                 }
