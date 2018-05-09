@@ -15,23 +15,20 @@ using System.Windows.Shapes;
 namespace WpfApplication1
 {
     /// <summary>
-    /// Логика взаимодействия для AddCity.xaml
+    /// Interaction logic for ErrorWindow.xaml
     /// </summary>
-    public partial class AddCity : Window
+    public partial class ErrorWindow : Window
     {
-        public AddCity()
+        public ErrorWindow(string ErrorFormCaption = "Ошибка приложения",string ErrorText="Ошибка")
         {
             InitializeComponent();
-            
+            textBlock.Text = ErrorText;
+            this.Title = ErrorFormCaption;
         }
 
-        private void button_Ok_Click(object sender, RoutedEventArgs e)
+        private void button_Click(object sender, RoutedEventArgs e)
         {
-            this.DialogResult = true;
-        }
-        public string CityName
-        {
-            get { return textBox.Text; ; }
+            this.Close();
         }
     }
 }

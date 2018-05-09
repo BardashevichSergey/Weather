@@ -18,12 +18,17 @@ namespace WpfApplication1
     }
     public class WeatherTable
     {
+        string[] PropertyArray { get; set; }
         public string Property { get; set; }
         public string Value { get; set; }
-        public WeatherTable(string property,string value)
+        public string T { get; set; }
+        public WeatherTable(string property, string value, string[] propertyarray =null)
         {
+            PropertyArray = new string[2];
+            PropertyArray[0] = property;
             Property = property;
             Value = value;
+            //T = propertyarray[0];
         }
     }
 }
