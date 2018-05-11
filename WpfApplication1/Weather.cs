@@ -6,16 +6,6 @@ using System.Threading.Tasks;
 
 namespace WpfApplication1
 {
-    public class Weather
-    {
-        public string City { get; set; }
-        public string Weekday { get; set; }
-        public string Sun_rise { get; set; }
-        public string Sunset { get; set; }
-        public int TemperatureNow { get; set; }
-        public string WeatherType { get; set; }
-
-    }
     public class WeatherTable
     {
         string[] PropertyArray { get; set; }
@@ -28,7 +18,6 @@ namespace WpfApplication1
             PropertyArray[0] = property;
             Property = property;
             Value = value;
-            //T = propertyarray[0];
         }
     }
 

@@ -18,6 +18,7 @@ namespace WpfApplication1
           "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "F", "KH", "TS",
           "CH", "SH", "SHCH", null, "Y", null, "E", "YU", "YA" };
         [DataMember]
+        int id { get; set; }
         public string Name { get; set; }
         [DataMember]
         public string NameTranslit { get; set; }

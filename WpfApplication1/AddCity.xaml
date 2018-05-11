@@ -5,20 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApplication1"
         mc:Ignorable="d"
-        Title="Добавить город" Height="100" Width="300">
+        Title="Добавить город" Height="100" Width="300"
+        Icon="Images/add.png"
+        ResizeMode="NoResize">
     <Grid>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="10,9,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="269" RenderTransformOrigin="0.5,0.5">
-            <TextBox.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform/>
-                    <SkewTransform/>
-                    <RotateTransform Angle="-0.165"/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </TextBox.RenderTransform>
-        </TextBox>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="10,9,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="269" RenderTransformOrigin="0.5,0.5"/>
         <Button x:Name="button_Ok" Content="Ок" HorizontalAlignment="Left" Margin="108,39,0,0" VerticalAlignment="Top" Width="75" Click="button_Ok_Click"/>
         <Button IsDefault="True" IsCancel="True" x:Name="button_Cansel" Content="Отмена" HorizontalAlignment="Left" Margin="207,39,0,0" VerticalAlignment="Top" Width="75"/>
-
     </Grid>
 </Window>

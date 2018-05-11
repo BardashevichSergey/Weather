@@ -22,6 +22,7 @@ using System.ComponentModel;
 using HtmlAgilityPack;
 using System.Threading;
 using System.Windows.Forms;
+using System.Data.Entity;
 
 namespace WpfApplication1
 {
@@ -29,13 +30,17 @@ namespace WpfApplication1
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     /// 
+    class ApplicationContext : DbContext
+    {
+        public ApplicationContext() : base("DefaultConnection")
+        {
+        }
+        public DbSet<City> Cities { get; set; }
+    }
 
     public partial class MainWindow : Window
     {
         List<City> CityList;
-        List<string> weatherTable;
-        List<WeatherRow> weatherRows;
-
         bool isInit = false;
         enum selection
         {
@@ -43,6 +48,12 @@ namespace WpfApplication1
             today = 1,
             week = 2
         }
+        ApplicationContext db;
+
+        private delegate void CityListChange();
+        private delegate void CityListSelectionChange();
+        private event CityListChange onChangeCityList;
+        private event CityListSelectionChange onSelectionChangeCityList;
         
         public MainWindow()
         {
@@ -50,7 +61,7 @@ namespace WpfApplication1
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-                       
+            db = new ApplicationContext();
             List<City> CityListTmp = new List<City>();
             CityList = new List<City>();
             CityListTmp.Add(new City("Брянск"));
@@ -62,8 +73,10 @@ namespace WpfApplication1
                 CityList.Add(item);
             CityListTmp.Clear();
             listBox.ItemsSource = CityList;
-            
+            //listBox.DataContext = db.Cities.Local.ToBindingList();
             isInit = true;
+
+            onChangeCityList += listBox.Items.Refresh;
         }
         private List<City> getCitylistFromHTML()
         {
@@ -73,8 +86,7 @@ namespace WpfApplication1
             if (page != null)
             {
                 html.LoadHtml(page);
-                Weather weather = new Weather();
-                List<WeatherTable> weatherlist = new List<WeatherTable>();
+                 List<WeatherTable> weatherlist = new List<WeatherTable>();
 
                 //HtmlAgilityPack.HtmlNode.ElementsFlags.Remove("option");
 
@@ -151,14 +163,9 @@ namespace WpfApplication1
             }
             return text;
         }
-        private void SaveCityList(List<City> List)
-        {
-            
-        }
 
         private  List<WeatherRow> ParsePage(string CityName, selection select)
         {
-            
             HtmlAgilityPack.HtmlDocument html = new HtmlAgilityPack.HtmlDocument();
             string page = GetHtmlPageText("https://www.meteoservice.ru/weather/"+select+"/" + CityName + ".html");
             if (page == null)
@@ -166,7 +173,6 @@ namespace WpfApplication1
             else
             { 
                 html.LoadHtml(page);
-                Weather weather = new Weather();
                 List<WeatherRow> weatherlist = new List<WeatherRow>();
 
                 switch (select)
@@ -262,14 +268,14 @@ namespace WpfApplication1
                 if (addCity.CityName != "")
                 {
                     CityList.Add(new City(addCity.CityName));
-                    listBox.Items.Refresh();
+                    onChangeCityList();
                 }
         }
 
         private void Delete_City(int index )
         {
             CityList.RemoveAt(index);
-            listBox.Items.Refresh();
+            onChangeCityList();
         }
         private void button_Save_Citys_Click(object sender, RoutedEventArgs e)
         {
@@ -292,24 +298,26 @@ namespace WpfApplication1
                 openDialog.InitialDirectory = System.Windows.Forms.Application.ExecutablePath;
                 openDialog.CheckFileExists = true;
                 openDialog.Filter = "JSON-фалы(*.json)|*.json";
-                openDialog.ShowDialog();
-                string fileName = openDialog.FileName;
-
-                if (fileName != null)
-                    using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
-                    {
-                        DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(List<City>));
-
-                        List<City> newpeople = (List<City>)jsonFormatter.ReadObject(fs);
-                        CityList.Clear();
-                        foreach (var i in newpeople)
-                            CityList.Add(i);
-                        listBox.Items.Refresh();
-                    }
+                if (openDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string fileName = openDialog.FileName;
+                    if (fileName != null)
+                        using (FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate))
+                        {
+                            DataContractJsonSerializer jsonFormatter = new DataContractJsonSerializer(typeof(List<City>));
+                            List<City> newpeople = (List<City>)jsonFormatter.ReadObject(fs);
+                            CityList.Clear();
+                            foreach (var i in newpeople)
+                                CityList.Add(i);
+                            onChangeCityList();
+                        }
+                }
             }
             catch(Exception ex)
             {
                 ErrorWindow errorWindow = new ErrorWindow("Ошибка загрузки городов", ex.Message);
+                errorWindow.Left = this.Left + (this.Width - errorWindow.Width) / 2;
+                errorWindow.Top = this.Top + (this.Height - errorWindow.Height) / 2;
                 errorWindow.Show();
             }    
         }
@@ -329,7 +337,6 @@ namespace WpfApplication1
             if (!isInit)
                 return;
             getWeather(listBox.SelectedIndex);
- 
         }
 
         private void MenuItemExit_Click(object sender, RoutedEventArgs e)
